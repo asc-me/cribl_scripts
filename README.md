@@ -1,6 +1,6 @@
-#Cribl Scripts
+# Cribl Scripts
 
-##LS_leader_FTR script
+## LS_leader_FTR script
 
 How to Use:
 - copy script over to box
