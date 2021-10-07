@@ -46,9 +46,11 @@ cribl    hard    nofile    80000
 cribl    soft    nofile    80000
 EOT
 # firewalld port access for services
-firewall-cmd --permanent --zone=public --add-port=80/tcp
-firewall-cmd --permanent --zone=public --add-port=4200/tcp
-firewall-cmd --permanent --zone=public --add-port=9000/tcp
+firewall-cmd --permanent --zone=public --add-port=10080/tcp # http in port
+firewall-cmd --permanent --zone=public --add-port=10420/tcp # tcpjson in port
+firewall-cmd --permanent --zone=public --add-port=10000/tcp # splunk2cribl port
+firewall-cmd --permanent --zone=public --add-port=4200/tcp # mgmt port
+firewall-cmd --permanent --zone=public --add-port=9000/tcp # UI port
 systemctl reload firewalld
 #### cribl setup
 echo "checkpoint: starting git install and setup" | tee -a $working_dir/ftr.log
@@ -74,6 +76,7 @@ chown -R cribl cribl/
 echo "starting logstream and adding cribl systemd file" | tee -a $working_dir/ftr.log
 sudo -u cribl $cribl_bin/cribl start
 $cribl_bin/cribl boot-start enable -m systemd -u cribl
+systemctl enable cribl
 # perform cribl config
 echo "setting up node as leader" | tee -a $working_dir/ftr.log
 sudo -u cribl $cribl_bin/cribl mode-master
