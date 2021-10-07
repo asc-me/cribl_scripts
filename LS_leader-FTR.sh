@@ -45,6 +45,11 @@ cribl    soft    fsize    unlimited
 cribl    hard    nofile    80000
 cribl    soft    nofile    80000
 EOT
+# firewalld port access for services
+firewall-cmd --permanent --zone=public --add-port=80/tcp
+firewall-cmd --permanent --zone=public --add-port=4200/tcp
+firewall-cmd --permanent --zone=public --add-port=9000/tcp
+systemctl reload firewalld
 #### cribl setup
 echo "checkpoint: starting git install and setup" | tee -a $working_dir/ftr.log
 yum install git -y
