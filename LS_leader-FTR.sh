@@ -71,4 +71,4 @@ sudo -u cribl $cribl_bin/cribl start
 $cribl_bin/cribl boot-start enable -m systemd -u cribl
 # perform cribl config
 echo "setting up node as leader" | tee -a $working_dir/ftr.log
-sudo -u cribl $cribl_bin/cribl mode-leader
+sudo -u cribl $cribl_bin/cribl mode-master
