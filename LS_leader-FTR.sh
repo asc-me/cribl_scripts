@@ -46,6 +46,7 @@ cribl    hard    nofile    80000
 cribl    soft    nofile    80000
 EOT
 # firewalld port access for services
+echo "adding firewall rules" | tee -a $working_dir/ftr.log
 firewall-cmd --permanent --zone=public --add-port=10080/tcp # http in port
 firewall-cmd --permanent --zone=public --add-port=10420/tcp # tcpjson in port
 firewall-cmd --permanent --zone=public --add-port=10000/tcp # splunk2cribl port
