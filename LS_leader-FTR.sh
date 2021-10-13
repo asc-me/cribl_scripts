@@ -63,6 +63,7 @@ sudo -u cribl git clone ${cls_repo_url}
 # get most recent cribl release from source
 #### NOTE: if you dont allow access to public endopints, then you will need to provide a endpoint to fetch the cribl logstream tar from
 echo "checkpoint: starting cribl logstream install and setup" | tee -a $working_dir/ftr.log
+cd $install_dir
 if [[ $cpu_arch == "x86_64" ]]
 then
   curl -Lso - $(curl https://cdn.cribl.io/dl/latest-x64) | tar zxvf -
@@ -70,14 +71,11 @@ else
   curl -Lso - $(curl https://cdn.cribl.io/dl/latest-arm64) | tar zxvf -
 fi
 # move cribl to the install dir and set ownership
-mv $working_dir/cribl $install_dir/
-cd $install_dir/
-chown -R cribl cribl/
+chown -R cribl.cribl cribl/
 # start cribl
 echo "starting logstream and adding cribl systemd file" | tee -a $working_dir/ftr.log
-sudo -u cribl $cribl_bin/cribl start
-$cribl_bin/cribl boot-start enable -m systemd -u cribl
-systemctl enable cribl
+$cribl_bin/cribl boot-start enable -u cribl
+systemctl start cribl
 # perform cribl config
 echo "setting up node as leader" | tee -a $working_dir/ftr.log
 sudo -u cribl $cribl_bin/cribl mode-master
