@@ -9,7 +9,7 @@ install_dir="/opt"
 cls_worker_group="default" ## only change this if you want to adde this worker to a specific group
 cls_leader_ip="0.0.0.0" ## MUST be changed to your leader's ip/url
 cls_leader_port="9000" ## only change if leader UI/API access is changed from default port
-cls_token="" ## MUST be changed to your leader's distributed mgmt token (see readme for more info)
+stream_token="" ## MUST be changed to your leader's distributed mgmt token (see readme for more info)
 #### END: vars to be set by TF
 # make working directory
 rm -rf $working_dir
@@ -51,5 +51,6 @@ firewall-cmd --permanent --zone=public --add-port=9000/tcp # UI port
 systemctl reload firewalld
 # bootstrap cribl instance from leader node
 echo "Bootstrapping worker from leader API" | tee -a $working_dir/ftr.log
-curl "http://${cls_leader_ip}:${cls_leader_port}/init/install-worker.sh?group=${cls_worker_group}&token=${cls_token}" | bash -
+curl "http://${cls_leader_ip}:${cls_leader_port}/init/install-worker.sh?group=${cls_worker_group}&token=${stream_token}" | bash -
 
+sudo -u cribl /opt/cribl/bin/cribl mode-worker -H ${cls_leader_ip} -p ${cls_leader_port} -u ${stream_token}

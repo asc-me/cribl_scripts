@@ -6,11 +6,13 @@ working_dir="/tmp/ftr"
 install_dir="/opt"
 #### START: vars to be set by TF code, comment these out for use with Terraform
 # logstream vars
-cls_user="admin"
-cls_pass="password"
-cls_leader_ip=$(hostname -I)
-cls_leader_port="" ## if left null will use default port
-cls_repo_url="" ## if left null will use local git repo only
+stream_user="admin"
+stream_pass="password"
+stream_leader_ip=$(hostname -I)
+stream_leader_port="" ## if left null will use default port
+stream_repo_url="" ## if left null will use local git repo only, can be HTTPS or SSH
+stream_enable_tls="false" ## if you want to enable TLS please read the readme about pre-reqs, accepted values are 'true' or 'false'
+stream_backup_leader="false" ## if you want to stand up a failover leader node, set this value to true so that the cribl service stays shut down
 # git vars
 git_user="cribl"
 git_email="cribl@cribl.com"
@@ -59,7 +61,7 @@ yum install git -y
 sudo -u cribl git config --local user.name $git_user
 sudo -u cribl git config --local user.email $git_email
 sudo -u cribl git config --global init.defaultBranch main
-sudo -u cribl git clone ${cls_repo_url}
+sudo -u cribl git clone ${stream_repo_url}
 # get most recent cribl release from source
 #### NOTE: if you dont allow access to public endopints, then you will need to provide a endpoint to fetch the cribl logstream tar from
 echo "checkpoint: starting cribl logstream install and setup" | tee -a $working_dir/ftr.log
@@ -79,4 +81,23 @@ systemctl start cribl
 # perform cribl config
 echo "setting up node as leader" | tee -a $working_dir/ftr.log
 sudo -u cribl $cribl_bin/cribl mode-master
-sudo -u cribl $cribl_bin/cribl restart
+systemctl restart cribl
+
+if [[ -z $stream_leader_port ]]
+then 
+  stream_leader_port="9000"
+fi
+
+if [[ ! -z $stream_repo_url ]]
+then
+  # get stream bearer token
+  mkdir -p /tmp/.auth
+  curl http://$stream_leader_ip:$stream_leader_port/api/v1/auth/login -H 'Content-Type: application/json' -d "{\"username\":\"<username>\",\"password\":\"<password>\"}" 2>/dev/null | jq -r .token > ~/.auth/token
+  export JWT_AUTH_TOKEN=`cat /tmp/.auth/token`
+  export AUTH_HEAD="Authorization:Bearer `cat /tmp/.auth/token`"
+  curl -X POST "http://$stream_leader_ip:$stream_leader_port/api/v1/version/sync" -H "accept: application/json" -H "${AUTH_HEAD}" -d "ref=master&deploy=true"
+
+if [[ $stream_backup_leader == "true" ]]
+then
+  # disable the cribl service and stop cribl
+  # insert cron script to 'healthcheck' the prod leader and start 

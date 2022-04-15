@@ -1,6 +1,6 @@
 # Cribl Scripts
 
-## LS_leader-FTR script
+## stream_leader-FTR script
 
 How to Use:
 - copy script over to box
@@ -18,7 +18,7 @@ Troubleshooting:
 - check the script log in /tmp/ftr/ftr.log
 - contact the developer?
 
-## LS_worker-FTR script
+## stream_worker-FTR script
 
 How to Use:
 - log into your leader node and setup a token in the settings > Distributed Settings > Leader Settings page
